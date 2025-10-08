@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Notes - 极简而强大的AI笔记应用</title>
+    <meta name="description" content="Minimal Notes - 用更高级的美学与交互为创作赋能，支持多平台同步的智能笔记应用。">
+    <link rel="icon" href="n-logo.png" type="image/png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 浅色系配色方案 */
+            --primary-white: #ffffff;
+            --secondary-white: #f8fafc;
+            --tertiary-white: #f1f5f9;
+            --primary-gray: #94a3b8;
+            --secondary-gray: #64748b;
+            --primary-blue: #3b82f6;
+            --primary-blue-hover: #2563eb;
+            --accent-purple: #8b5cf6;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--secondary-white) 0%, var(--primary-white) 50%, var(--tertiary-white) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-blue);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero 区域样式 */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-height: 5rem; /* 预留足够空间，避免下方文字补位 */
+            position: relative; /* 为伪元素定位 */
+        }
+
+        /* 打字光标效果 */
+        .hero-title.typing::after {
+            content: '|';
+            display: inline-block;
+            margin-left: 5px;
+            color: var(--text-primary);
+            animation: blink-caret .75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--primary-gray);
+        }
+
+        .btn-secondary:hover {
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        /* 功能特性区域 */
+        .features {
+            padding: 96px 0;
+            background: linear-gradient(180deg, var(--primary-white) 0%, var(--secondary-white) 100%);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 720px;
+            margin: -2rem auto 2rem;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+            background-image: linear-gradient(var(--primary-white), var(--primary-white)),
+                              linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
+            background-clip: padding-box, border-box;
+            backdrop-filter: saturate(160%) blur(8px);
+            -webkit-backdrop-filter: saturate(160%) blur(8px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            background-image: linear-gradient(var(--primary-white), var(--primary-white)),
+                              linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(139, 92, 246, 0.35));
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            color: white;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-purple) 100%);
+            box-shadow: 0 10px 24px rgba(59, 130, 246, 0.2);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 14px 30px rgba(59, 130, 246, 0.28);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* reveal 进入动画（更柔和） */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 新版功能区布局 */
+        .features-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 调整为更均衡的左右比例 */
+            gap: 3rem;
+            align-items: start;
+            margin-top: 2rem;
+        }
+
+        .features-list {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .features-list::before {
+            content: '';
+            position: absolute;
+            left: 32px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(59,130,246,0.28), rgba(139,92,246,0.28));
+            border-radius: 2px;
+        }
+
+        .feature-item {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            background: rgba(255,255,255,0.9);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            backdrop-filter: saturate(160%) blur(6px);
+            -webkit-backdrop-filter: saturate(160%) blur(6px);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-item .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-purple));
+            box-shadow: 0 10px 24px rgba(59,130,246,0.2);
+        }
+
+        .feature-tags {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: var(--primary-blue);
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.18);
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+        }
+
+        .features-visual {
+            position: relative;
+            display: flex; /* 右侧堆叠多张卡片 */
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .visual-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #eef2ff, #faf5ff);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .visual-card .kpis {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .kpi {
+            font-size: 0.75rem;
+            color: var(--secondary-gray);
+            background: rgba(148,163,184,0.12);
+            border: 1px solid rgba(148,163,184,0.22);
+            padding: 0.25rem 0.55rem;
+            border-radius: 999px;
+        }
+
+        .visual-blob {
+            position: absolute;
+            filter: blur(24px);
+            opacity: 0.6;
+        }
+
+        .blob-1 {
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle at 30% 30%, rgba(59,130,246,0.35), transparent 60%);
+            top: -20px;
+            left: -20px;
+        }
+
+        .blob-2 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 70% 70%, rgba(139,92,246,0.35), transparent 60%);
+            bottom: -30px;
+            right: -30px;
+        }
+
+        .visual-content h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .visual-content p {
+            color: var(--text-secondary);
+        }
+
+        .visual-stat {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: var(--primary-white);
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        @media (max-width: 992px) {
+            .features-layout { grid-template-columns: 1fr; }
+            .visual-stat { grid-template-columns: 1fr; }
+            .features-list::before { left: 28px; }
+        }
+
+        /* 产品展示区域 */
+        .product-showcase {
+            padding: 80px 0;
+            background: var(--secondary-white);
+        }
+
+        .showcase-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .showcase-content {
+            padding-right: 2rem;
+        }
+
+        .showcase-image {
+            position: relative;
+        }
+
+        .showcase-image img {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+        }
+
+        .showcase-image:hover img {
+            transform: scale(1.02);
+        }
+
+        /* 下载区域 */
+        .downloads {
+            padding: 80px 0;
+            background: var(--primary-white);
+            text-align: center;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .platform-card {
+            background: var(--secondary-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        .platform-name {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .platform-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* 页脚样式 */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-white);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--primary-gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-white);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .showcase-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .showcase-content {
+                padding-right: 0;
+                text-align: center;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 滚动效果 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <img src="n-logo.png" alt="Minimal Notes Logo">
+                <span>Minimal Notes</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="#features" class="nav-link">功能特性</a>
+                <a href="#showcase" class="nav-link">产品展示</a>
+                <a href="#download" class="nav-link">下载</a>
+                <a href="#" class="btn btn-secondary">最新版本已更新</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    重新定义笔记体验
+                </h1>
+                <p class="hero-subtitle animate-fade-in-up" style="animation-delay: 0.2s">
+                    Minimal Notes 将极简美学与人工智能完美融合，为您带来前所未有的创作体验。
+                    智能组织、多平台同步、优雅设计，一切只为让您的想法自由流动。
+                </p>
+                <div class="animate-fade-in-up" style="animation-delay: 0.4s">
+                    <a href="#download" class="btn btn-primary">
+                        <i class="fas fa-download"></i>
+                        立即下载
+                    </a>
+                    <a href="#features" class="btn btn-secondary" style="margin-left: 1rem">
+                        了解更多
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能特性区域（新版布局） -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title reveal">核心能力，匠心设计</h2>
+            <p class="section-subtitle reveal" style="animation-delay: 0.1s">我们用更高级的美学与交互，重新定义笔记应用的未来。更快、更美、更智能。</p>
+
+            <div class="features-layout">
+                <!-- 左侧时间线功能列表 -->
+                <div class="features-list">
+                    <div class="feature-item reveal" style="animation-delay: 0.1s">
+                        <div class="feature-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <div>
+                            <h3 class="feature-title">AI 工作流</h3>
+                            <p class="feature-description">从提炼要点到结构化输出，AI 驱动完整创作流程，降低重复劳动。</p>
+                            <div class="feature-tags">
+                                <span class="tag">要点提炼</span><span class="tag">结构化</span><span class="tag">自动总结</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal" style="animation-delay: 0.2s">
+                        <div class="feature-icon"><i class="fas fa-cloud"></i></div>
+                        <div>
+                            <h3 class="feature-title">多端无缝同步</h3>
+                            <p class="feature-description">Windows / macOS / iOS / Android 全平台一致体验，随时随地顺畅访问。</p>
+                            <div class="feature-tags">
+                                <span class="tag">跨平台</span><span class="tag">实时同步</span><span class="tag">离线可用</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal" style="animation-delay: 0.3s">
+                        <div class="feature-icon"><i class="fas fa-pen-nib"></i></div>
+                        <div>
+                            <h3 class="feature-title">极简美学</h3>
+                            <p class="feature-description">细节克制、层次分明、色彩轻盈，提供更高级的视觉与交互质感。</p>
+                            <div class="feature-tags">
+                                <span class="tag">玻璃拟态</span><span class="tag">渐变细节</span><span class="tag">视觉层次</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal" style="animation-delay: 0.4s">
+                        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                        <div>
+                            <h3 class="feature-title">隐私安全</h3>
+                            <p class="feature-description">端到端加密与本地优先策略，确保数据安全与可控。</p>
+                            <div class="feature-tags">
+                                <span class="tag">端到端加密</span><span class="tag">本地优先</span><span class="tag">可控分享</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal" style="animation-delay: 0.5s">
+                        <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+                        <div>
+                            <h3 class="feature-title">极速响应</h3>
+                            <p class="feature-description">针对大数量笔记场景优化性能，打开/搜索/切换均迅速流畅。</p>
+                            <div class="feature-tags">
+                                <span class="tag">毫秒级搜索</span><span class="tag">懒加载</span><span class="tag">缓存优化</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item reveal" style="animation-delay: 0.6s">
+                        <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <h3 class="feature-title">扩展与兼容</h3>
+                            <p class="feature-description">支持 Markdown、代码高亮、表格与导出，满足多样化专业需求。</p>
+                            <div class="feature-tags">
+                                <span class="tag">Markdown</span><span class="tag">代码高亮</span><span class="tag">导出</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧视觉卡片区 -->
+                <div class="features-visual reveal" style="animation-delay: 0.3s">
+                    <div class="visual-card">
+                        <div class="visual-blob blob-1"></div>
+                        <div class="visual-blob blob-2"></div>
+                        <div class="visual-content">
+                            <h4>创作效率提升</h4>
+                            <p>平均减少 40% 重复整理时间</p>
+                            <div class="visual-stat">
+                                <div class="stat-card">同步速度 +60%</div>
+                                <div class="stat-card">搜索响应 ≈120ms</div>
+                            </div>
+                            <div class="kpis">
+                                <span class="kpi">结构化产出</span>
+                                <span class="kpi">AI 总结</span>
+                                <span class="kpi">多端协作</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visual-card">
+                        <div class="visual-content">
+                            <h4>平台覆盖与稳定性</h4>
+                            <p>支持主流平台，长期稳定运行</p>
+                            <div class="visual-stat">
+                                <div class="stat-card">多端安装量 120k+</div>
+                                <div class="stat-card">近三月崩溃率 <0.1%</div>
+                            </div>
+                            <div class="kpis">
+                                <span class="kpi">Windows</span>
+                                <span class="kpi">macOS</span>
+                                <span class="kpi">iOS</span>
+                                <span class="kpi">Android</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visual-card">
+                        <div class="visual-content">
+                            <h4>效率与满意度</h4>
+                            <p>用户效率与留存稳步提升</p>
+                            <div class="visual-stat">
+                                <div class="stat-card">完成效率 +35%</div>
+                                <div class="stat-card">留存率 +28%</div>
+                            </div>
+                            <div class="kpis">
+                                <span class="kpi">NPS 72</span>
+                                <span class="kpi">评分 4.8/5</span>
+                                <span class="kpi">推荐度高</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品展示区域 -->
+    <section id="showcase" class="product-showcase">
+        <div class="container">
+            <h2 class="section-title reveal">精美界面，卓越体验</h2>
+            
+            <div class="showcase-container">
+                <div class="showcase-content">
+                    <h3 class="reveal">现代简约的设计哲学</h3>
+                    <p class="reveal" style="animation-delay: 0.2s">
+                        Minimal Notes 秉承"少即是多"的设计理念，去除一切不必要的元素，
+                        让您专注于内容本身。精心调校的动画效果和交互反馈，
+                        每一次点击都带来愉悦的体验。
+                    </p>
+                    <p class="reveal" style="animation-delay: 0.4s">
+                        响应式设计确保在不同设备上都能获得一致的优秀体验，
+                        从手机到桌面，完美适配各种使用场景。
+                    </p>
+                </div>
+                
+                <div class="showcase-image reveal" style="animation-delay: 0.6s">
+                    <img src="show.png" alt="产品界面展示" style="max-width: 100%; height: auto; display: block;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section id="download" class="downloads">
+        <div class="container">
+            <h2 class="section-title reveal">随时随地，开始创作</h2>
+            <p class="hero-subtitle reveal" style="animation-delay: 0.2s">
+                选择您喜欢的平台，立即体验 Minimal Notes 带来的卓越笔记体验
+            </p>
+
+            <div class="platforms-grid">
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <i class="fab fa-windows"></i>
+                    </div>
+                    <h4 class="platform-name">Windows</h4>
+                    <a href="#" class="btn btn-primary platform-btn">
+                        <i class="fas fa-download"></i>
+                        下载
+                    </a>
+                </div>
+
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h4 class="platform-name">macOS</h4>
+                    <a href="Minimal Notes-1.0.0-arm64.dmg" class="btn btn-primary platform-btn" download>
+                        <i class="fas fa-download"></i>
+                        下载
+                    </a>
+                </div>
+
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <i class="fab fa-app-store-ios"></i>
+                    </div>
+                    <h4 class="platform-name">iOS</h4>
+                    <a href="#" class="btn btn-primary platform-btn">
+                        <i class="fas fa-download"></i>
+                        下载
+                    </a>
+                </div>
+
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <i class="fab fa-android"></i>
+                    </div>
+                    <h4 class="platform-name">Android</h4>
+                    <a href="#" class="btn btn-primary platform-btn">
+                        <i class="fas fa-download"></i>
+                        下载
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Minimal Notes</h4>
+                    <p>用更高级的美学与交互为创作赋能</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>产品</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">功能特性</a></li>
+                        <li><a href="#download">下载</a></li>
+                        <li><a href="#">定价</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>支持</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">帮助中心</a></li>
+                        <li><a href="#">用户指南</a></li>
+                        <li><a href="#">联系我们</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>关注我们</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">GitHub</a></li>
+                        <li><a href="#">Discord</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 滚动动画效果
+        function revealElements() {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach((reveal) => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        // 初始化
+        window.addEventListener('scroll', revealElements);
+        window.addEventListener('load', revealElements);
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 打字机效果（重做：更自然的节奏与标点停顿）
+        const heroTitle = document.querySelector('.hero-title');
+        const words = ["重新定义笔记体验", "智能高效，灵感无限", "极简美学，卓越交互"]; // 可按需扩展
+
+        const Typewriter = function(el, phrases, options = {}) {
+            this.el = el;
+            this.phrases = phrases;
+            this.index = 0;
+            this.char = 0;
+            this.deleting = false;
+            this.settings = Object.assign({
+                baseSpeed: 120,
+                variance: 80,
+                deleteSpeed: 60,
+                pauseBetweenWords: 1400,
+                punctuationPause: {
+                    ',': 200, '，': 200,
+                    '.': 450, '。': 450,
+                    '!': 550, '！': 550,
+                    '?': 550, '？': 550
+                }
+            }, options);
+        };
+
+        Typewriter.prototype.tick = function() {
+            const phrase = this.phrases[this.index];
+            const isDoneTyping = this.char >= phrase.length;
+            const isDoneDeleting = this.char <= 0;
+
+            if (this.deleting) {
+                this.char = Math.max(0, this.char - 1);
+            } else {
+                this.char = Math.min(phrase.length, this.char + 1);
+            }
+
+            const output = phrase.substring(0, this.char);
+            this.el.textContent = output;
+
+            // 光标控制
+            if (this.char > 0 && !isDoneTyping) {
+                this.el.classList.add('typing');
+            } else {
+                this.el.classList.remove('typing');
+            }
+
+            // 速度计算（更自然）
+            let speed = (this.deleting ? this.settings.deleteSpeed : this.settings.baseSpeed)
+                        - Math.random() * this.settings.variance;
+
+            // 标点停顿
+            const lastChar = output.slice(-1);
+            if (!this.deleting && this.settings.punctuationPause[lastChar]) {
+                speed += this.settings.punctuationPause[lastChar];
+            }
+
+            // 状态切换停顿
+            if (!this.deleting && isDoneTyping) {
+                this.deleting = true;
+                speed = this.settings.pauseBetweenWords;
+            } else if (this.deleting && isDoneDeleting) {
+                this.deleting = false;
+                this.index = (this.index + 1) % this.phrases.length;
+                speed = 600; // 反向切换稍短
+            }
+
+            setTimeout(() => this.tick(), Math.max(20, speed));
+        };
+
+        window.addEventListener('load', () => {
+            const tw = new Typewriter(heroTitle, words);
+            tw.tick();
+            revealElements();
+        });
+
+        // CMS 接口预留
+        const cmsConfig = {
+            apiEndpoint: '/api/content',
+            contentTypes: ['pages', 'features', 'downloads'],
+            cacheEnabled: true,
+            version: '1.0'
+        };
+
+        console.log('CMS Configuration:', cmsConfig);
+    </script>
+</body>
+</html>
